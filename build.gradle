@@ -46,7 +46,7 @@ allprojects {
         // region Kotlin
         //================================================================================
 
-        kotlinVersion = '1.0.4'
+        kotlinVersion = '1.0.3'
         kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
         kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
         kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -123,7 +123,14 @@ allprojects {
         // region Test
         //================================================================================
 
-        testJUnit = "junit:junit:4.12"
+        junit_version = '4.12'
+        spek_version = '1.0.89'
+        junit_platform_version = '1.0.0-M2'
+        hamkrest_version = '1.2.2.0'
+        testJUnit = "junit:junit:$junit_version"
+        testSpek = "org.jetbrains.spek:spek-api:$spek_version"
+        testSpekEngine = "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
+        testSpekRunner = "org.junit.platform:junit-platform-runner:$junit_platform_version"
 
         //android-supportTest
         supportTestVersion = '0.4.1'
