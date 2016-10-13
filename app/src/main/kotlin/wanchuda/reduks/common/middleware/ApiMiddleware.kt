@@ -9,6 +9,7 @@ import wanchuda.reduks.common.AppGson
 import wanchuda.reduks.common.action.ApiAction
 import wanchuda.reduks.common.api.MainApi
 import wanchuda.reduks.component.app.AppState
+import wanchuda.reduks.model.Post
 
 /*
 val apiMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatcher, action ->
@@ -67,15 +68,28 @@ inline fun <reified T> Gson.fromJson(json: String): T? = fromJson(json, object :
 class ApiMiddleware<S>(var responseParser: ResponseParser) : Middleware<S> {
     override fun dispatch(store: Store<S>, nextDispatcher: (Any) -> Any, action: Any): Any {
         //This is where Kraph should be
-        if (action is ApiAction.Request)
-            Fuel.get(MainApi.GetPost().path)
-                    .responseString { request, response, result ->
-                        result.fold({
-                            store.dispatch(ApiAction.Success(action.type, responseParser.parse(it)))
-                        }, {
-                            store.dispatch(ApiAction.Failure(action.type, it))
-                        })
+        when (action) {
+            is ApiAction.Request<*> ->
+                Fuel.get(MainApi.GetPost().path)
+                        .responseString { request, response, result ->
+                            result.fold({
+                                store.dispatch(ApiAction.Success(action.query, action.parse.invoke(it)!!))
+                            }, {
+                                store.dispatch(ApiAction.Failure(action.query, it))
+                            })
+                        }
+            is ApiAction.Success -> {
+                when (action.response) {
+                    is Post -> {
                     }
+                    is String -> {
+                    }
+                }
+            }
+            is ApiAction.Failure -> {
+            }
+
+        }
         return nextDispatcher(action)
     }
 
