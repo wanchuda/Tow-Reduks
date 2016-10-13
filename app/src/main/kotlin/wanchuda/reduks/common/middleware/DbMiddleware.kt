@@ -2,6 +2,7 @@ package wanchuda.reduks.common.middleware
 
 import android.util.Log
 import com.beyondeye.reduks.Middleware
+import com.beyondeye.reduks.MiddlewareFn
 import io.realm.Realm
 import wanchuda.reduks.common.action.DbAction
 import wanchuda.reduks.common.separator.ApiState
@@ -10,7 +11,7 @@ import wanchuda.reduks.component.app.AppState
 import wanchuda.reduks.component.post.PostAction
 import wanchuda.reduks.model.Post
 
-val databaseMiddleware: Middleware<AppState> = Middleware { store, nextDispatcher, action ->
+val databaseMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatcher, action ->
     Log.d("TOW", "(databaseMiddleware) - $action")
     if (action is DbAction) {
         val realm = Realm.getDefaultInstance()
@@ -22,7 +23,7 @@ val databaseMiddleware: Middleware<AppState> = Middleware { store, nextDispatche
 
             is DbAction.QueryPostListDb -> {
                 Log.d("TOW", "//QueryProjectListDb")
-                nextDispatcher.dispatch(PostAction.UpdatePostList(
+                nextDispatcher.invoke(PostAction.UpdatePostList(
                         payload = realm.where(Post::class.java).findAll().toList(),
                         apiState = ApiState.UNCHANGED,
                         dbState = DbState.SUCCESS))
@@ -34,7 +35,7 @@ val databaseMiddleware: Middleware<AppState> = Middleware { store, nextDispatche
                     realm.copyToRealmOrUpdate(it)
                 }
                 realm.commitTransaction()
-                nextDispatcher.dispatch(PostAction.UpdatePostList(
+                nextDispatcher.invoke(PostAction.UpdatePostList(
                         payload = null,
                         apiState = ApiState.UNCHANGED,
                         dbState = DbState.SAVE))
@@ -49,7 +50,7 @@ val databaseMiddleware: Middleware<AppState> = Middleware { store, nextDispatche
             is DbAction.QueryList<*> -> {
                 Log.d("TOW", "//QueryList")
                 val payload = realm.where(action.klass.java).findAll().toList()
-                nextDispatcher.dispatch(action.nextAction(payload))
+                nextDispatcher.invoke(action.nextAction(payload))
             }
 
             is DbAction.UpdateList<*> -> {
@@ -59,13 +60,13 @@ val databaseMiddleware: Middleware<AppState> = Middleware { store, nextDispatche
                     realm.copyToRealmOrUpdate(it)
                 }
                 realm.commitTransaction()
-                nextDispatcher.dispatch(action.nextAction)
+                nextDispatcher.invoke(action.nextAction)
             }
 
         //endregion
         }
         realm.close()
     } else {
-        nextDispatcher.dispatch(action)
+        nextDispatcher.invoke(action)
     }
 }

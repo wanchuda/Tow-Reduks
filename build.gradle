@@ -102,7 +102,7 @@ allprojects {
         //================================================================================
 
         //Reduks
-        reduksVersion = "2.0.0b6"
+        reduksVersion = "2.0.0b9"
         reduksCore = "com.github.beyondeye.reduks:reduks-core:$reduksVersion"
         reduksRx = "com.github.beyondeye.reduks:reduks-rx:$reduksVersion"
         reduksAndroid = "com.github.beyondeye.reduks:reduks-android:$reduksVersion"

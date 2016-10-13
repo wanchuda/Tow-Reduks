@@ -1,7 +1,6 @@
 package wanchuda.reduks.component.post
 
 import com.beyondeye.reduks.Action
-import com.beyondeye.reduks.NextDispatcher
 import com.beyondeye.reduks.StandardAction
 import com.beyondeye.reduks.Thunk
 import wanchuda.reduks.common.action.ApiAction
@@ -20,20 +19,20 @@ sealed class PostAction(override val payload: Any? = null,
     //================================================================================
 
     class FetchPostList() : PostAction(), Thunk<AppState> {
-        override fun execute(dispatcher: NextDispatcher, state: AppState): Action {
+        override fun execute(dispatcher: (Any) -> Any, state: AppState): Action {
             val onApiRequesting: (Any?) -> Action = { payload ->
-                dispatcher.dispatch(DbAction.QueryList(klass = Post::class,
-                                                       nextAction = { payload ->
-                                                           QueryPostListFromDb(payload = payload as List<Post>)
-                                                           //= UpdatePostList(payload = payload as List<Post>, apiState = ApiState.UNCHANGED, dbState = DbState.SUCCESS)
-                                                       }))
+                dispatcher.invoke(DbAction.QueryList(klass = Post::class,
+                                                     nextAction = { payload ->
+                                                         QueryPostListFromDb(payload = payload as List<Post>)
+                                                         //= UpdatePostList(payload = payload as List<Post>, apiState = ApiState.UNCHANGED, dbState = DbState.SUCCESS)
+                                                     }))
                 FetchPostListApiRequesting()
                 //= UpdatePostList(payload = null, apiState = ApiState.REQUESTING, dbState = DbState.UNCHANGED)
             }
 
             val onApiSuccess: (Any) -> Action = { payload ->
                 payload as List<Post>
-                dispatcher.dispatch(FetchPostListApiSuccess(payload = payload))
+                dispatcher.invoke(FetchPostListApiSuccess(payload = payload))
                 //= dispatcher.dispatch(UpdatePostList(payload = payload, apiState = ApiState.SUCCESS, dbState = DbState.UNCHANGED))
                 DbAction.UpdateList(payload = payload,
                                     klass = Post::class,

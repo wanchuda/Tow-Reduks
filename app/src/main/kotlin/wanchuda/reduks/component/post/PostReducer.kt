@@ -2,14 +2,16 @@ package wanchuda.reduks.component.post
 
 import android.util.Log
 import com.beyondeye.reduks.Reducer
+import com.beyondeye.reduks.ReducerFn
 import wanchuda.reduks.common.separator.ApiState
 import wanchuda.reduks.common.separator.DbState
 import wanchuda.reduks.component.app.AppState
 
-fun postReducer(): Reducer<AppState> = Reducer { state, action ->
+fun postReducer(): Reducer<AppState> = ReducerFn { state, action ->
     Log.d("TOW", "--postReducer: $action")
     when (action) {
         is PostAction -> {
+            val action = action as PostAction
             when (action) {
             //================================================================================
             // region action general
