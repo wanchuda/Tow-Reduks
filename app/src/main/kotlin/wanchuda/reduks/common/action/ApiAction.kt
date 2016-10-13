@@ -1,16 +1,11 @@
 package wanchuda.reduks.common.action
 
 import com.beyondeye.reduks.Action
-import com.beyondeye.reduks.StandardAction
-import wanchuda.reduks.common.separator.ApiResponseType
 
-sealed class ApiAction(override val payload: Any? = null,
-                       override val error: Boolean = false) : StandardAction {
+sealed class ApiAction(open val type: String) : Action {
 
-    class RequestApi(override val payload: Any?,
-                     override val onRequesting: (Any?) -> Action,
-                     override val onSuccess: (Any) -> Action,
-                     override val onFail: (Any?) -> Action,
-                     override val responseType: ApiResponseType) : ApiAction(), BaseApiAction
+    class Request(type: String, val query: String) : ApiAction(type)
+    class Success(type: String, val response: Any) : ApiAction(type)
+    class Failure(type: String, val t: Throwable) : ApiAction(type)
 
 }

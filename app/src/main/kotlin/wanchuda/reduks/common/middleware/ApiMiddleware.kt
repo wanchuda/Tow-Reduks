@@ -1,17 +1,16 @@
 package wanchuda.reduks.common.middleware
 
-import android.util.Log
 import com.beyondeye.reduks.Middleware
-import com.beyondeye.reduks.MiddlewareFn
-import com.github.kittinunf.fuel.httpGet
+import com.beyondeye.reduks.Store
+import com.github.kittinunf.fuel.Fuel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import wanchuda.reduks.common.AppGson
 import wanchuda.reduks.common.action.ApiAction
 import wanchuda.reduks.common.api.MainApi
-import wanchuda.reduks.common.separator.ApiResponseType
-import wanchuda.reduks.common.separator.ApiState
 import wanchuda.reduks.component.app.AppState
-import wanchuda.reduks.extension.rx_gsonResult
-import wanchuda.reduks.model.Post
 
+/*
 val apiMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatcher, action ->
     Log.d("TOW", "(apiMiddleware) - $action")
     when (action) {
@@ -55,4 +54,32 @@ val apiMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatcher, 
         }
     }
     nextDispatcher.invoke(action)
+}*/
+
+val apiMiddleware = ApiMiddleware<AppState>(object : ApiMiddleware.ResponseParser {
+    override fun parse(json: String): Any {
+        return AppGson().fromJson(json) ?: Any()
+    }
+})
+
+inline fun <reified T> Gson.fromJson(json: String): T? = fromJson(json, object : TypeToken<T>() {}.type)
+
+class ApiMiddleware<S>(var responseParser: ResponseParser) : Middleware<S> {
+    override fun dispatch(store: Store<S>, nextDispatcher: (Any) -> Any, action: Any): Any {
+        //This is where Kraph should be
+        if (action is ApiAction.Request)
+            Fuel.get(MainApi.GetPost().path)
+                    .responseString { request, response, result ->
+                        result.fold({
+                            store.dispatch(ApiAction.Success(action.type, responseParser.parse(it)))
+                        }, {
+                            store.dispatch(ApiAction.Failure(action.type, it))
+                        })
+                    }
+        return nextDispatcher(action)
+    }
+
+    interface ResponseParser {
+        fun parse(json: String): Any
+    }
 }

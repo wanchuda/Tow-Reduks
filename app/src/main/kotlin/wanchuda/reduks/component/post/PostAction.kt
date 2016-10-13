@@ -5,7 +5,6 @@ import com.beyondeye.reduks.StandardAction
 import com.beyondeye.reduks.Thunk
 import wanchuda.reduks.common.action.ApiAction
 import wanchuda.reduks.common.action.DbAction
-import wanchuda.reduks.common.separator.ApiResponseType
 import wanchuda.reduks.common.separator.ApiState
 import wanchuda.reduks.common.separator.DbState
 import wanchuda.reduks.component.app.AppState
@@ -22,10 +21,10 @@ sealed class PostAction(override val payload: Any? = null,
         override fun execute(dispatcher: (Any) -> Any, state: AppState): Action {
             val onApiRequesting: (Any?) -> Action = { payload ->
                 dispatcher.invoke(DbAction.QueryList(klass = Post::class,
-                                                     nextAction = { payload ->
-                                                         QueryPostListFromDb(payload = payload as List<Post>)
-                                                         //= UpdatePostList(payload = payload as List<Post>, apiState = ApiState.UNCHANGED, dbState = DbState.SUCCESS)
-                                                     }))
+                        nextAction = { payload ->
+                            QueryPostListFromDb(payload = payload as List<Post>)
+                            //= UpdatePostList(payload = payload as List<Post>, apiState = ApiState.UNCHANGED, dbState = DbState.SUCCESS)
+                        }))
                 FetchPostListApiRequesting()
                 //= UpdatePostList(payload = null, apiState = ApiState.REQUESTING, dbState = DbState.UNCHANGED)
             }
@@ -35,23 +34,23 @@ sealed class PostAction(override val payload: Any? = null,
                 dispatcher.invoke(FetchPostListApiSuccess(payload = payload))
                 //= dispatcher.dispatch(UpdatePostList(payload = payload, apiState = ApiState.SUCCESS, dbState = DbState.UNCHANGED))
                 DbAction.UpdateList(payload = payload,
-                                    klass = Post::class,
-                                    nextAction = { payload ->
-                                        SavePostListToDb()
-                                        //= UpdatePostList(payload = null, apiState = ApiState.SUCCESS, dbState = DbState.SAVE)
-                                    })
+                        klass = Post::class,
+                        nextAction = { payload ->
+                            SavePostListToDb()
+                            //= UpdatePostList(payload = null, apiState = ApiState.SUCCESS, dbState = DbState.SAVE)
+                        })
             }
 
             val onApiFail: (Any?) -> Action = { payload ->
                 FetchPostListApiFail()
                 //= UpdatePostList(payload = null, apiState = ApiState.FAIL, dbState = DbState.UNCHANGED)
             }
-
-            return ApiAction.RequestApi(payload = "query",
+            return ApiAction.Request("post", "query")
+/*            return ApiAction.RequestApi(payload = "query",
                                         onRequesting = onApiRequesting,
                                         onSuccess = onApiSuccess,
                                         onFail = onApiFail,
-                                        responseType = ApiResponseType.POST_LIST)
+                                        responseType = ApiResponseType.POST_LIST)*/
         }
     }
 

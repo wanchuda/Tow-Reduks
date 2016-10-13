@@ -108,6 +108,7 @@ allprojects {
         reduksAndroid = "com.github.beyondeye.reduks:reduks-android:$reduksVersion"
         reduksKovenant = "com.github.beyondeye.reduks:reduks-kovenant:$reduksVersion"
         reduksDevTools = "com.github.beyondeye.reduks:reduks-devtools:$reduksVersion"
+        reduksLogger = "com.github.beyondeye.reduks:reduks-logger:$reduksVersion"
 
         //endregion
 

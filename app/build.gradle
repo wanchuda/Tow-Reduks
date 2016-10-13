@@ -58,6 +58,8 @@ dependencies {
 
             reduksCore,
             reduksRx,
+            reduksLogger,
+            reduksKovenant,
 
             gson,
 
