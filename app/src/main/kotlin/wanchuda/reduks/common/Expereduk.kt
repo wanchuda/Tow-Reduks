@@ -10,20 +10,15 @@ import wanchuda.reduks.common.api.MainApi
 import wanchuda.reduks.common.separator.ApiState
 import wanchuda.reduks.component.app.AppState
 import wanchuda.reduks.model.Post
+import java.lang.reflect.Type
 
 sealed class ApiAction {
 
-    sealed class Request(val query: String) : ApiAction() {
-        class PostList(query: String) : Request(query = query)
-    }
+    class Request(val query: String, val dataClass: Type) : ApiAction()
 
-    sealed class Success<T>(val payload: T) : ApiAction() {
-        class PostList(postList: List<Post>) : Success<List<Post>>(payload = postList)
-    }
+    class Success(val payload: Any) : ApiAction()
 
-    sealed class Failure(val throwable: Throwable) : ApiAction() {
-        class PostList(throwable: Throwable) : Failure(throwable = throwable)
-    }
+    class Failure(val throwable: Throwable) : ApiAction()
 }
 
 
@@ -35,7 +30,7 @@ class ApiMiddleware<S>() : Middleware<S> {
         when (action) {
             is ApiAction -> when (action) {
                 is ApiAction.Request -> handleRequest(store, nextDispatcher, action)
-                is ApiAction.Success<*> -> handleSuccess(store, nextDispatcher, action)
+                is ApiAction.Success -> handleSuccess(store, nextDispatcher, action)
                 is ApiAction.Failure -> handleFailure(store, nextDispatcher, action)
             }
         }
@@ -43,33 +38,32 @@ class ApiMiddleware<S>() : Middleware<S> {
     }
 
     private fun handleRequest(store: Store<S>, nextDispatcher: (Any) -> Any, action: ApiAction.Request): Any {
-        return when (action) {
-            is ApiAction.Request.PostList -> {
-                MainApi.GetPost().httpGet().responseString { request, response, result ->
-                    result.fold({
-                        val p: List<Post> = AppGson().fromJson(it)
-                        store.dispatch(ApiAction.Success.PostList(p.subList(0, 30)))
-                    }, {
-                        store.dispatch(ApiAction.Failure.PostList(it))
-                    })
-                }
-                nextDispatcher(action)
-            }
+        MainApi.GetPost().httpGet().responseString { request, response, result ->
+            result.fold({
+                store.dispatch(ApiAction.Success(AppGson().fromJson(it, action.dataClass)))
+            }, {
+                store.dispatch(ApiAction.Failure(it))
+            })
         }
+        return nextDispatcher(action)
     }
 
-    private fun handleSuccess(store: Store<S>, nextDispatcher: (Any) -> Any, action: ApiAction.Success<*>): Any {
+    private fun handleSuccess(store: Store<S>, nextDispatcher: (Any) -> Any, action: ApiAction.Success): Any {
         return when (action) {
-            is ApiAction.Success.PostList -> {
+            is ApiAction.Success -> {
                 //TODO dispatch a new DbAction
+            }
+            else -> {
             }
         }
     }
 
     private fun handleFailure(store: Store<S>, nextDispatcher: (Any) -> Any, action: ApiAction.Failure): Any {
         return when (action) {
-            is ApiAction.Failure.PostList -> {
+            is ApiAction.Failure -> {
                 //TODO not sure what to do here
+            }
+            else -> {
             }
         }
     }
@@ -79,7 +73,7 @@ class ApiReducer : Reducer<AppState> {
     override fun reduce(state: AppState, action: Any): AppState = if (action is ApiAction) {
         when (action) {
             is ApiAction.Request -> handleRequest(state, action)
-            is ApiAction.Success<*> -> handleSuccess(state, action)
+            is ApiAction.Success -> handleSuccess(state, action)
             is ApiAction.Failure -> handleFailure(state, action)
             else -> state
         }
@@ -89,24 +83,34 @@ class ApiReducer : Reducer<AppState> {
 
     private fun handleRequest(state: AppState, action: ApiAction.Request): AppState {
         return when (action) {
-            is ApiAction.Request.PostList -> {
+            is ApiAction.Request -> {
                 state.copy(testState = state.testState.copy(apiState = ApiState.REQUESTING))
+            }
+            else -> {
+                state
             }
         }
     }
 
-    private fun handleSuccess(state: AppState, action: ApiAction.Success<*>): AppState {
-        return when (action) {
-            is ApiAction.Success.PostList -> {
-                state.copy(testState = state.testState.copy(apiState = ApiState.SUCCESS, post = action.payload))
+    private fun handleSuccess(state: AppState, action: ApiAction.Success): AppState {
+        val payload = action.payload
+        return when (payload) {
+            is Post -> {
+                state.copy(testState = state.testState.copy(apiState = ApiState.SUCCESS, post = action.payload as List<Post>))
+            }
+            else -> {
+                state
             }
         }
     }
 
     private fun handleFailure(state: AppState, action: ApiAction.Failure): AppState {
         return when (action) {
-            is ApiAction.Failure.PostList -> {
+            is ApiAction.Failure -> {
                 state.copy(testState = state.testState.copy(apiState = ApiState.FAIL))
+            }
+            else -> {
+                state
             }
         }
     }

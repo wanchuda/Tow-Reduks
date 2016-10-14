@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.item_test.view.*
 import wanchuda.reduks.R
 import wanchuda.reduks.common.ApiAction
 import wanchuda.reduks.component.app.appStore
+import wanchuda.reduks.extension.typeToken
 import wanchuda.reduks.model.Post
 
 class MainActivity : BaseActivity() {
@@ -34,7 +35,7 @@ class MainActivity : BaseActivity() {
 
     fun setUpUI() {
         btTest.setOnClickListener {
-            appStore.dispatch(ApiAction.Request.PostList("queryPostList"))
+            appStore.dispatch(ApiAction.Request("queryPostList", typeToken<List<Post>>()))
 //            appStore.dispatch(PostAction.FetchPostList())
         }
         btNext.setOnClickListener { startActivity(Intent(this@MainActivity, NextActivity::class.java)) }
