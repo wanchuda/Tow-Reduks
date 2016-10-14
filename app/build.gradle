@@ -71,6 +71,7 @@ dependencies {
             fuel,
             fuelAndroid,
             fuelRxJava,
+            kraph,
 
             kittinunfResult
     )

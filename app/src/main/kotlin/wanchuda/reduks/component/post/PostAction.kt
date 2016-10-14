@@ -3,7 +3,6 @@ package wanchuda.reduks.component.post
 import com.beyondeye.reduks.Action
 import com.beyondeye.reduks.StandardAction
 import com.beyondeye.reduks.Thunk
-import wanchuda.reduks.common.action.ApiAction
 import wanchuda.reduks.common.action.DbAction
 import wanchuda.reduks.common.separator.ApiState
 import wanchuda.reduks.common.separator.DbState
@@ -45,8 +44,8 @@ sealed class PostAction(override val payload: Any? = null,
                 FetchPostListApiFail()
                 //= UpdatePostList(payload = null, apiState = ApiState.FAIL, dbState = DbState.UNCHANGED)
             }
-            return ApiAction.Request("post", "query")
-/*            return ApiAction.RequestApi(payload = "query",
+            return this
+            /*return Request.RequestApi(payload = "query",
                                         onRequesting = onApiRequesting,
                                         onSuccess = onApiSuccess,
                                         onFail = onApiFail,

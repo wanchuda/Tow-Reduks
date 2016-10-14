@@ -117,6 +117,7 @@ allprojects {
         //================================================================================
 
         gson = "com.google.code.gson:gson:2.4"
+        kraph = "com.taskworld.kraph:kraph:0.3.0"
 
         //endregion
 

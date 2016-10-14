@@ -1,7 +1,6 @@
 package wanchuda.reduks
 
 import android.app.Application
-import android.util.Log
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
@@ -35,13 +34,13 @@ class MainApplication : Application() {
             addRequestInterceptor(cUrlLoggingRequestInterceptor())
             addRequestInterceptor { next: (Request) -> Request ->
                 { req: Request ->
-                    Log.d("TOW", "Request $req")
+//                    Log.d("TOW", "Request $req")
                     next(req)
                 }
             }
             addResponseInterceptor { next: (Request, Response) -> Response ->
                 { req: Request, res: Response ->
-                    Log.d("TOW", "Response $res")
+//                    Log.d("TOW", "Response $res")
                     next(req, res)
                 }
             }

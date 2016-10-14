@@ -9,13 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import com.github.kittinunf.reactiveandroid.support.v7.widget.rx_itemsWith
 import io.realm.Realm
-import kotlinx.android.synthetic.main.activity_main.btNext
-import kotlinx.android.synthetic.main.activity_main.btTest
-import kotlinx.android.synthetic.main.activity_main.rvTest
-import kotlinx.android.synthetic.main.item_test.view.tvTitle
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.item_test.view.*
 import wanchuda.reduks.R
+import wanchuda.reduks.common.ApiAction
 import wanchuda.reduks.component.app.appStore
-import wanchuda.reduks.component.post.PostAction
 import wanchuda.reduks.model.Post
 
 class MainActivity : BaseActivity() {
@@ -35,7 +33,10 @@ class MainActivity : BaseActivity() {
     }
 
     fun setUpUI() {
-        btTest.setOnClickListener { appStore.dispatch(PostAction.FetchPostList()) }
+        btTest.setOnClickListener {
+            appStore.dispatch(ApiAction.Request.PostList("queryPostList"))
+//            appStore.dispatch(PostAction.FetchPostList())
+        }
         btNext.setOnClickListener { startActivity(Intent(this@MainActivity, NextActivity::class.java)) }
         rvTest.apply {
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
