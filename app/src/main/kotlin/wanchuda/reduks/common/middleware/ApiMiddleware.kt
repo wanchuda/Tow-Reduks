@@ -26,11 +26,6 @@ val apiMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatcher, 
                     // MainApi.CallGraphQL(payload).httpPost()
 
                     val fuel = MainApi.GetPost().httpGet()
-                            .responseString { request, response, result ->
-                                Log.d("TOW", "//RequestApi: request - $request")
-                                Log.d("TOW", "//RequestApi: response - $response")
-                            }
-
                     val observable =
                             when (action.responseType) {
                                 ApiResponseType.POST_LIST -> fuel.rx_gsonResult<List<Post>>()
