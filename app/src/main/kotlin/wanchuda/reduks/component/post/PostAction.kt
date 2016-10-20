@@ -24,34 +24,34 @@ sealed class PostAction(override val payload: Any? = null,
                 dispatcher.invoke(DbAction.QueryList(klass = Post::class,
                                                      nextAction = { payload ->
                                                          QueryPostListFromDb(payload = payload as List<Post>)
-                                                         //= UpdatePostList(payload = payload as List<Post>, apiState = ApiState.UNCHANGED, dbState = DbState.SUCCESS)
+                                                         //same as UpdatePostList(payload = payload as List<Post>, apiState = ApiState.UNCHANGED, dbState = DbState.SUCCESS)
                                                      }))
                 FetchPostListApiRequesting()
-                //= UpdatePostList(payload = null, apiState = ApiState.REQUESTING, dbState = DbState.UNCHANGED)
+                //same as UpdatePostList(payload = null, apiState = ApiState.REQUESTING, dbState = DbState.UNCHANGED)
             }
 
             val onApiSuccess: (Any) -> Action = { payload ->
                 payload as List<Post>
                 dispatcher.invoke(FetchPostListApiSuccess(payload = payload))
-                //= dispatcher.dispatch(UpdatePostList(payload = payload, apiState = ApiState.SUCCESS, dbState = DbState.UNCHANGED))
+                //same as dispatcher.dispatch(UpdatePostList(payload = payload, apiState = ApiState.SUCCESS, dbState = DbState.UNCHANGED))
                 DbAction.UpdateList(payload = payload,
                                     klass = Post::class,
                                     nextAction = { payload ->
                                         SavePostListToDb()
-                                        //= UpdatePostList(payload = null, apiState = ApiState.SUCCESS, dbState = DbState.SAVE)
+                                        //same as UpdatePostList(payload = null, apiState = ApiState.SUCCESS, dbState = DbState.SAVE)
                                     })
             }
 
             val onApiFail: (Any?) -> Action = { payload ->
                 FetchPostListApiFail()
-                //= UpdatePostList(payload = null, apiState = ApiState.FAIL, dbState = DbState.UNCHANGED)
+                //same as UpdatePostList(payload = null, apiState = ApiState.FAIL, dbState = DbState.UNCHANGED)
             }
 
-            return ApiAction.RequestApi(payload = "query",
-                                        onRequesting = onApiRequesting,
-                                        onSuccess = onApiSuccess,
-                                        onFail = onApiFail,
-                                        responseType = ApiResponseType.POST_LIST)
+            return ApiAction.Request(payload = "query",
+                                     onRequesting = onApiRequesting,
+                                     onSuccess = onApiSuccess,
+                                     onFail = onApiFail,
+                                     responseType = ApiResponseType.POST_LIST)
         }
     }
 

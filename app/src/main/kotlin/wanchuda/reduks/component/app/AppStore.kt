@@ -11,6 +11,7 @@ val appStore = RxStore(AppState(), appReducer).apply {
     applyMiddleware(
             loggingMiddleware,
             apiMiddleware,
-            databaseMiddleware)
+            databaseMiddleware
+                   )
     applyStandardMiddlewares()
 }

@@ -69,4 +69,5 @@ val databaseMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatc
     } else {
         nextDispatcher.invoke(action)
     }
+
 }

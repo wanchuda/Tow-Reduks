@@ -7,7 +7,6 @@ import com.github.kittinunf.fuel.httpGet
 import wanchuda.reduks.common.action.ApiAction
 import wanchuda.reduks.common.api.MainApi
 import wanchuda.reduks.common.separator.ApiResponseType
-import wanchuda.reduks.common.separator.ApiState
 import wanchuda.reduks.component.app.AppState
 import wanchuda.reduks.extension.rx_gsonResult
 import wanchuda.reduks.model.Post
@@ -16,9 +15,10 @@ val apiMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatcher, 
     Log.d("TOW", "(apiMiddleware) - $action")
     when (action) {
         is ApiAction -> {
+            // must cast action because action is Any type. T-T
             val action = action as ApiAction
             when (action) {
-                is ApiAction.RequestApi -> {
+                is ApiAction.Request -> {
                     Log.d("TOW", "//RequestApi: query - ${action.payload}")
                     nextDispatcher.invoke(action.onRequesting(null))
 
@@ -27,18 +27,16 @@ val apiMiddleware: Middleware<AppState> = MiddlewareFn { store, nextDispatcher, 
 
                     val fuel = MainApi.GetPost().httpGet()
                     val observable =
+                            // cast response data.
                             when (action.responseType) {
                                 ApiResponseType.POST_LIST -> fuel.rx_gsonResult<List<Post>>()
-                            //TODO : Other type
                                 else -> fuel.rx_gsonResult<List<Post>>()
                             }
 
                     observable.subscribe {
                         it.fold({ value ->
-                                    Log.d("TOW", "//RequestApi: status - ${ApiState.SUCCESS}")
                                     nextDispatcher.invoke(action.onSuccess(value))
                                 }, { error ->
-                                    Log.d("TOW", "//RequestApi: status - ${ApiState.FAIL}")
                                     nextDispatcher.invoke(action.onFail(null))
                                 })
                     }
